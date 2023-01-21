@@ -1,4 +1,6 @@
 const weather = (function() {
+    const apiKey = "d62a442b541250d4d6ebb4bd1172568b";
+
     function getCommaString(words) {
         let str = "";
 
@@ -16,10 +18,7 @@ const weather = (function() {
 
     /* http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key} */
     async function getLatLon(city, state, country) {
-        let apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=";
-        apiUrl += getCommaString([city, state, country]);
-        apiUrl += "&limit=1&appid=d62a442b541250d4d6ebb4bd1172568b";
-        console.log(apiUrl);
+        const apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${getCommaString([city, state, country])}&limit=1&appid=${apiKey}`;
         
         try {
             const response = await fetch(apiUrl);
@@ -36,8 +35,30 @@ const weather = (function() {
         }
     }
 
-    return {getCommaString, getLatLon};
+    /* https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key} */
+    async function getWeather(city, state, country) {
+        const latLon = await getLatLon(city, state, country);
+
+        if (!latLon.success) {
+            return false; //Do something on failure (return an empty object?)
+        }
+
+        let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latLon.lat}&lon=${latLon.lon}&appid=${apiKey}`;
+        console.log(apiUrl);
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            return data;
+        }
+        catch(err) {
+            console.log(err);
+            return false;
+        }
+    }
+
+    return {getCommaString, getLatLon, getWeather};
 })();
 
-weather.getLatLon("Paris", "TX", "US")
-.then((coords) => {console.log(coords);});
+weather.getWeather("Summerville", "SC", "US")
+.then((weather) => {console.log(weather);});
