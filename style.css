@@ -16,6 +16,30 @@
     margin: 0 auto;
 }
 
+/* Title/Form */
+.title > * {
+    text-align: center;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1.5rem);
+    column-gap: 10px;
+    row-gap: 5px;
+}
+
+label {
+    text-align: center;
+}
+
+#get-weather-button {
+    grid-area: 3 / 2 / 4 / 3;
+    font-size: 1em;
+}
+
+
+/* Info cards */
 .card-box {
     display: flex;
     width: var(--content-width);

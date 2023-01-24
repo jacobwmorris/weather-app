@@ -44,7 +44,6 @@ const weatherApi = (function() {
         }
 
         let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latLon.lat}&lon=${latLon.lon}&appid=${apiKey}`;
-        console.log(apiUrl);
 
         try {
             const response = await fetch(apiUrl);
@@ -55,18 +54,6 @@ const weatherApi = (function() {
             console.log(err);
             return false;
         }
-    }
-
-    function makeWeatherInfo(apiObj) {
-        const info = {};
-
-        info.temp = {
-            current: apiObj.main.temp,
-            low: apiObj.main.temp_min,
-            high: apiObj.main.temp_max
-        };
-
-        return info;
     }
 
     return {getLatLon, getWeather};
@@ -164,13 +151,33 @@ const weatherDisplay =(function() {
         cardBox.appendChild(makeTempCard(info.temp.current, info.temp.low, info.temp.high));
     }
 
-    return {update};
+    function notFound(location) {
+        const cardBox = document.querySelector(".card-box");
+        const notFound = makeElement("h2", `No information found for ${location}.`, "red-text");
+
+        clearChildren(cardBox);
+        cardBox.appendChild(notFound);
+    }
+
+    return {update, notFound};
 })();
 
-weatherApi.getWeather("Summerville", "SC", "US")
-.then((weather) => {
-    console.log(weather);
-    const info = new WeatherInfo(weather);
-    console.log(info);
-    weatherDisplay.update(info);
-});
+function getWeatherCallback(event) {
+    event.preventDefault();
+    const city = document.getElementById("city");
+    const country = document.getElementById("country");
+    const state = document.getElementById("state");
+
+    weatherApi.getWeather(city.value, country.value, state.value)
+    .then((weather) => {
+        if (!weather) {
+            weatherDisplay.notFound(`${city.value}, ${country.value}, ${state.value}`);
+            return;
+        }
+
+        const info = new WeatherInfo(weather);
+        weatherDisplay.update(info);
+    });
+}
+
+document.getElementById("get-weather-button").addEventListener("click", getWeatherCallback);
