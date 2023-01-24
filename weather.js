@@ -71,7 +71,7 @@ function WeatherInfo(apiObj) {
     };
     this.wind = {
         speed: this.MpsToMph(apiObj.wind.speed),
-        gust: this.MpsToMph(apiObj.wind.gust)
+        gust: apiObj.wind.gust ? this.MpsToMph(apiObj.wind.gust) : 0
     };
     this.humidity = apiObj.main.humidity;
     this.cloudiness = apiObj.clouds.all;
@@ -200,19 +200,60 @@ const weatherDisplay =(function() {
         return card;
     }
 
+    function makeWindCard(speed, gust) {
+        const card = makeElement("div", "", "card");
+        const title = makeElement("h2", "Wind", "");
+        const infoBox = makeElement("div", "", "card-info-box");
+
+        infoBox.appendChild(makeIcon("--color-cloud", "./icons/weather-cloudy.svg", "wind icon"));
+        infoBox.appendChild(makeCardInfo("Speed", speed.toFixed(1), "mph"));
+        if (gust > 0) {
+            infoBox.appendChild(makeCardInfo("Gusts", gust.toFixed(1), "mph"));
+        }
+
+        card.appendChild(title);
+        card.appendChild(infoBox);
+        return card;
+    }
+
+    function makeHumidCard(humidity) {
+        const card = makeElement("div", "", ["card", "card-info-box"]);
+
+        card.appendChild(makeIcon("--color-rain", "./icons/water-outline.svg", "humidity icon"));
+        card.appendChild(makeCardInfo("Humidity", humidity, "%"));
+
+        return card;
+    }
+
+    function makeCloudCard(cloudiness) {
+        const card = makeElement("div", "", ["card", "card-info-box"]);
+
+        card.appendChild(makeIcon("--color-cloud", "./icons/weather-cloudy.svg", "cloud icon"));
+        card.appendChild(makeCardInfo("Cloudiness", cloudiness, "%"));
+
+        return card;
+    }
+
     function update(info) {
         const displayTop = document.getElementById("weather-display-top");
+        const displayBottom = document.getElementById("weather-display-bottom");
 
         clearChildren(displayTop);
+        clearChildren(displayBottom);
         displayTop.appendChild(makeTempCard(info.temp.current, info.temp.low, info.temp.high));
         displayTop.appendChild(makePrecipCard(info.precip.rain, info.precip.snow));
+        displayTop.appendChild(makeWindCard(info.wind.speed, info.wind.gust));
+        displayBottom.appendChild(makeHumidCard(info.humidity));
+        displayBottom.appendChild(makeCloudCard(info.cloudiness));
     }
 
     function notFound(location) {
         const displayTop = document.getElementById("weather-display-top");
+        const displayBottom = document.getElementById("weather-display-bottom");
         const notFound = makeElement("h2", `No information found for ${location}.`, "red-text");
 
         clearChildren(displayTop);
+        clearChildren(displayBottom);
         displayTop.appendChild(notFound);
     }
 
