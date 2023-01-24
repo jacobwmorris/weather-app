@@ -23,7 +23,7 @@ const weatherApi = (function() {
         try {
             const response = await fetch(apiUrl);
             const locData = await response.json();
-            console.log(locData);
+            //console.log(locData);
             if (locData.length === 0) {
                 throw new Error("Location not found");
             }
@@ -65,10 +65,28 @@ function WeatherInfo(apiObj) {
         low: this.KelvToFah(apiObj.main.temp_min),
         high: this.KelvToFah(apiObj.main.temp_max)
     };
+    this.precip = {
+        rain: apiObj.rain ? this.MmToIn(apiObj.rain["3h"]) : 0,
+        snow: apiObj.snow ? this.MmToIn(apiObj.snow["3h"]) : 0
+    };
+    this.wind = {
+        speed: this.MpsToMph(apiObj.wind.speed),
+        gust: this.MpsToMph(apiObj.wind.gust)
+    };
+    this.humidity = apiObj.main.humidity;
+    this.cloudiness = apiObj.clouds.all;
 }
 
 WeatherInfo.prototype.KelvToFah = function(tempK) {
     return (tempK - 273.15) * (9 / 5) + 32;
+}
+
+WeatherInfo.prototype.MmToIn = function(lenMm) {
+    return lenMm / 25.4;
+}
+
+WeatherInfo.prototype.MpsToMph = function(speedMps) {
+    return speedMps * 2.237;
 }
 
 const weatherDisplay =(function() {
@@ -107,25 +125,31 @@ const weatherDisplay =(function() {
         return cardInfo;
     }
 
-    function makeTempIcon(temp) {
+    function makeIcon(colorVar, imgSrc, imgAlt) {
         const icon = makeElement("div", "", ["card-info", "weather-icon"]);
         const image = document.createElement("img");
-        
-        if (temp < 40) {
-            icon.style = "background-color: var(--color-cold);";
-            image.src = "./icons/thermometer-low.svg";
-        }
-        else if (temp < 80) {
-            icon.style = "background-color: var(--color-mild);";
-            image.src = "./icons/thermometer.svg";
-        }
-        else {
-            icon.style = "background-color: var(--color-hot);";
-            image.src = "./icons/thermometer-high.svg";
-        }
-        image.alt = "Temperature icon";
+
+        icon.style = `background-color: var(${colorVar});`;
+        image.src = imgSrc;
+        image.alt = imgAlt;
 
         icon.appendChild(image);
+        return icon;
+    }
+
+    function makeTempIcon(temp) {
+        let icon = {};
+        
+        if (temp < 40) {
+            icon = makeIcon("--color-cold", "./icons/thermometer-low.svg", "temperature icon");
+        }
+        else if (temp < 80) {
+            icon = makeIcon("--color-mild", "./icons/thermometer.svg", "temperature icon");
+        }
+        else {
+            icon = makeIcon("--color-hot", "./icons/thermometer-high.svg", "temperature icon");
+        }
+
         return icon;
     }
 
@@ -144,19 +168,52 @@ const weatherDisplay =(function() {
         return card;
     }
 
-    function update(info) {
-        const cardBox = document.querySelector(".card-box");
+    function makePrecipCard(rain, snow) {
+        const card = makeElement("div", "", "card");
+        const title = makeElement("h2", "Precipitation", "");
+        const infoBox = makeElement("div", "", "card-info-box");
 
-        clearChildren(cardBox);
-        cardBox.appendChild(makeTempCard(info.temp.current, info.temp.low, info.temp.high));
+        card.appendChild(title);
+
+        let precip = false;
+        if (rain > 0) {
+            const rainInfoBox = makeElement("div", "", "card-info-box");
+            rainInfoBox.appendChild(makeIcon("--color-rain", "./icons/weather-pouring.svg", "rain icon"));
+            rainInfoBox.appendChild(makeCardInfo("Rain", rain, "in (last 3 hours)"));
+            card.appendChild(rainInfoBox);
+            precip = true;
+        }
+        if (snow > 0) {
+            const snowInfoBox = makeElement("div", "", "card-info-box");
+            snowInfoBox.appendChild(makeIcon("--color-cold", "./icons/snowflake.svg", "snow icon"));
+            snowInfoBox.appendChild(makeCardInfo("Snow", snow, "in (last 3 hours)"));
+            card.appendChild(snowInfoBox);
+            precip = true;
+        }
+        if (!precip) {
+            const sunInfoBox = makeElement("div", "", "card-info-box");
+            sunInfoBox.appendChild(makeIcon("--color-sun", "./icons/weather-sunny.svg", "sun icon"));
+            sunInfoBox.appendChild(makeCardInfo("None", "", ""));
+            card.appendChild(sunInfoBox);
+        }
+
+        return card;
+    }
+
+    function update(info) {
+        const displayTop = document.getElementById("weather-display-top");
+
+        clearChildren(displayTop);
+        displayTop.appendChild(makeTempCard(info.temp.current, info.temp.low, info.temp.high));
+        displayTop.appendChild(makePrecipCard(info.precip.rain, info.precip.snow));
     }
 
     function notFound(location) {
-        const cardBox = document.querySelector(".card-box");
+        const displayTop = document.getElementById("weather-display-top");
         const notFound = makeElement("h2", `No information found for ${location}.`, "red-text");
 
-        clearChildren(cardBox);
-        cardBox.appendChild(notFound);
+        clearChildren(displayTop);
+        displayTop.appendChild(notFound);
     }
 
     return {update, notFound};
@@ -174,7 +231,7 @@ function getWeatherCallback(event) {
             weatherDisplay.notFound(`${city.value}, ${country.value}, ${state.value}`);
             return;
         }
-
+        console.log(weather);
         const info = new WeatherInfo(weather);
         weatherDisplay.update(info);
     });

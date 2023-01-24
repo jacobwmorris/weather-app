@@ -3,12 +3,14 @@
     --color-cold: #9de8ff;
     --color-mild: #14ac00;
     --color-hot: #ff6600;
+    --color-rain: #0051ff;
+    --color-sun: #fff06a;
 }
 
 * {
     padding: 0;
     margin: 0;
-    border: 1px solid black;
+    /* border: 1px solid black; */
 }
 
 #content {
@@ -43,7 +45,6 @@ label {
 .card-box {
     display: flex;
     width: var(--content-width);
-    height: 200px;
     justify-content: center;
 }
 

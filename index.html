@@ -23,7 +23,7 @@
             <input type="text" name="state" id="state">
             <button type="submit" id="get-weather-button">Get Weather</button>
         </form>
-        <div class="card-box">
+        <div class="card-box" id="weather-display-top">
             <div class="card">
                 <h2>Temperature</h2>
                 <div class="card-info-box">
@@ -45,10 +45,61 @@
                 </div>
             </div>
             <div class="card">
-
+                <h2>Precipitation</h2>
+                <div class="card-info-box">
+                    <div class="card-info weather-icon">
+                        <img src="./icons/weather-pouring.svg" alt="rain icon">
+                    </div>
+                    <div class="card-info">
+                        <h3>Rain</h3>
+                        <p>1 in (last hour)</p>
+                    </div>
+                </div>
+                <div class="card-info-box">
+                    <div class="card-info weather-icon">
+                        <img src="./icons/snowflake.svg" alt="snow icon">
+                    </div>
+                    <div class="card-info">
+                        <h3>Snow</h3>
+                        <p>1 in (last hour)</p>
+                    </div>
+                </div>
             </div>
             <div class="card">
-
+                <h2>Wind</h2>
+                <div class="card-info-box">
+                    <div class="card-info weather-icon">
+                        <img src="./icons/weather-windy.svg" alt="rain icon">
+                    </div>
+                    <div class="card-info">
+                        <h3>Wind</h3>
+                        <p>1 mph</p>
+                    </div>
+                    <div class="card-info">
+                        <h3>Gusts</h3>
+                        <p>10 mph</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-box" id="weather-display-bottom">
+            <div class="card card-info-box">
+                <div class="card-info weather-icon">
+                    <img src="./icons/water-outline.svg" alt="rain icon">
+                </div>
+                <div class="card-info">
+                    <h3>Humidity</h3>
+                    <p>50%</p>
+                </div>
+            </div>
+            <div class="card card-info-box">
+                <div class="card-info weather-icon">
+                    <img src="./icons/weather-sunny.svg" alt="rain icon">
+                </div>
+                <div class="card-info">
+                    <h3>Cloudiness</h3>
+                    <p>50%</p>
+                </div>
             </div>
         </div>
     </div>
