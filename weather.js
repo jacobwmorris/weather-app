@@ -153,6 +153,22 @@ const weatherDisplay =(function() {
         return icon;
     }
 
+    function makeCloudIcon(cloudiness) {
+        let icon = {};
+        
+        if (cloudiness < 30) {
+            icon = makeIcon("--color-sun", "./icons/weather-sunny.svg", "cloudiness icon");
+        }
+        else if (cloudiness < 90) {
+            icon = makeIcon("--color-sun", "./icons/weather-partly-cloudy.svg", "cloudiness icon");
+        }
+        else {
+            icon = makeIcon("--color-cloud", "./icons/weather-cloudy.svg", "cloudiness icon");
+        }
+
+        return icon;
+    }
+
     function makeTempCard(current, low, high) {
         const card = makeElement("div", "", "card");
         const title = makeElement("h2", "Temperature", "");
@@ -228,7 +244,7 @@ const weatherDisplay =(function() {
     function makeCloudCard(cloudiness) {
         const card = makeElement("div", "", ["card", "card-info-box"]);
 
-        card.appendChild(makeIcon("--color-cloud", "./icons/weather-cloudy.svg", "cloud icon"));
+        card.appendChild(makeCloudIcon(cloudiness));
         card.appendChild(makeCardInfo("Cloudiness", cloudiness, "%"));
 
         return card;
@@ -260,11 +276,29 @@ const weatherDisplay =(function() {
     return {update, notFound};
 })();
 
+function validateCity(city) {
+    const valid = city.value.length > 0;
+
+    if (!valid) {
+        city.setCustomValidity("A city is required");
+    }
+    else {
+        city.setCustomValidity("");
+    }
+    city.reportValidity();
+
+    return valid;
+}
+
 function getWeatherCallback(event) {
     event.preventDefault();
     const city = document.getElementById("city");
     const country = document.getElementById("country");
     const state = document.getElementById("state");
+
+    if (!validateCity(city)) {
+        return;
+    }
 
     weatherApi.getWeather(city.value, country.value, state.value)
     .then((weather) => {

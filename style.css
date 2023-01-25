@@ -19,6 +19,10 @@
     margin: 0 auto;
 }
 
+.red-text {
+    color: red;
+}
+
 /* Title/Form */
 .title > * {
     text-align: center;
