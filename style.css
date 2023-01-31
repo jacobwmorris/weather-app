@@ -14,9 +14,15 @@
     /* border: 1px solid black; */
 }
 
+body {
+    background-color: darkblue;
+}
+
 #content {
     width: var(--content-width);
     margin: 0 auto;
+    background-color: #a7b0ff;
+    box-shadow: 0 0 20px #a7b0ff;
 }
 
 .red-text {
@@ -34,6 +40,7 @@ form {
     grid-template-rows: repeat(3, 1.5rem);
     column-gap: 10px;
     row-gap: 5px;
+    margin: 20px 0;
 }
 
 label {
@@ -54,7 +61,10 @@ label {
 }
 
 .card {
-    flex: 1 0 33.3%;
+    flex: 1 0 33%;
+    border: 1px solid darkblue;
+    padding: 10px 0;
+    border-radius: 5px;
 }
 
 .card-info-box {
@@ -80,4 +90,5 @@ label {
     width: 50px;
     height: 50px;
     border-radius: 50%;
+    border: 1px solid #fff;
 }

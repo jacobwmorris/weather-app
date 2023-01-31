@@ -1,29 +1,35 @@
 const weatherApi = (function() {
     const apiKey = "d62a442b541250d4d6ebb4bd1172568b";
 
-    function getCommaString(words) {
-        let str = "";
+    function getLocString(city, state, country) {
+        let loc = city;
+        console.log({city, state, country});
 
-        for (let i = 0; i < words.length; i++) {
-            if (words[i]) {
-                if (str) {
-                    str += ",";
-                }
-                str += words[i];
-            }
+        if (country && !state) {
+            console.log("constructing loc with country and not state");
+            loc += "," + country;
+        }
+        else if (!country && state) {
+            console.log("constructing loc with state and not country");
+            loc += "," + state + ",us";
+        }
+        else if (country && state) {
+            console.log("constructing loc with both country and state");
+            loc += "," + state + "," + country;
         }
 
-        return str;
+        return loc;
     }
 
     /* http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key} */
-    async function getLatLon(city, state, country) {
-        const apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${getCommaString([city, state, country])}&limit=1&appid=${apiKey}`;
+    async function getLatLon(locString) {
+        const apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${locString}&limit=1&appid=${apiKey}`;
+        console.log(apiUrl);
         
         try {
             const response = await fetch(apiUrl);
             const locData = await response.json();
-            //console.log(locData);
+            console.log(locData);
             if (locData.length === 0) {
                 throw new Error("Location not found");
             }
@@ -37,10 +43,10 @@ const weatherApi = (function() {
 
     /* https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key} */
     async function getWeather(city, state, country) {
-        const latLon = await getLatLon(city, state, country);
+        const latLon = await getLatLon(getLocString(city, state, country));
 
         if (!latLon.success) {
-            return false; //Do something on failure (return an empty object?)
+            return false;
         }
 
         let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latLon.lat}&lon=${latLon.lon}&appid=${apiKey}`;
@@ -221,7 +227,7 @@ const weatherDisplay =(function() {
         const title = makeElement("h2", "Wind", "");
         const infoBox = makeElement("div", "", "card-info-box");
 
-        infoBox.appendChild(makeIcon("--color-cloud", "./icons/weather-cloudy.svg", "wind icon"));
+        infoBox.appendChild(makeIcon("--color-cloud", "./icons/weather-windy.svg", "wind icon"));
         infoBox.appendChild(makeCardInfo("Speed", speed.toFixed(1), "mph"));
         if (gust > 0) {
             infoBox.appendChild(makeCardInfo("Gusts", gust.toFixed(1), "mph"));
@@ -300,7 +306,7 @@ function getWeatherCallback(event) {
         return;
     }
 
-    weatherApi.getWeather(city.value, country.value, state.value)
+    weatherApi.getWeather(city.value, state.value, country.value)
     .then((weather) => {
         if (!weather) {
             weatherDisplay.notFound(`${city.value}, ${country.value}, ${state.value}`);
