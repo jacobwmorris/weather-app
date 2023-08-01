@@ -6,15 +6,12 @@ const weatherApi = (function() {
         console.log({city, state, country});
 
         if (country && !state) {
-            console.log("constructing loc with country and not state");
             loc += "," + country;
         }
         else if (!country && state) {
-            console.log("constructing loc with state and not country");
             loc += "," + state + ",us";
         }
         else if (country && state) {
-            console.log("constructing loc with both country and state");
             loc += "," + state + "," + country;
         }
 
@@ -29,7 +26,6 @@ const weatherApi = (function() {
         try {
             const response = await fetch(apiUrl);
             const locData = await response.json();
-            console.log(locData);
             if (locData.length === 0) {
                 throw new Error("Location not found");
             }
