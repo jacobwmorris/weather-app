@@ -3,7 +3,6 @@ const weatherApi = (function() {
 
     function getLocString(city, state, country) {
         let loc = city;
-        console.log({city, state, country});
 
         if (country && !state) {
             loc += "," + country;
@@ -20,15 +19,19 @@ const weatherApi = (function() {
 
     /* http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key} */
     async function getLatLon(locString) {
-        const apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${locString}&limit=1&appid=${apiKey}`;
-        console.log(apiUrl);
+        const apiUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${locString}&limit=1&appid=${apiKey}`;
         
         try {
             const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error("Http error. Status: " + response.status);
+            }
+
             const locData = await response.json();
             if (locData.length === 0) {
                 throw new Error("Location not found");
             }
+
             return {success: true, lat: locData[0].lat, lon: locData[0].lon};
         }
         catch(err) {
@@ -49,6 +52,10 @@ const weatherApi = (function() {
 
         try {
             const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error("Http error. Status: " + response.status);
+            }
+
             const data = await response.json();
             return data;
         }
@@ -308,7 +315,6 @@ function getWeatherCallback(event) {
             weatherDisplay.notFound(`${city.value}, ${country.value}, ${state.value}`);
             return;
         }
-        console.log(weather);
         const info = new WeatherInfo(weather);
         weatherDisplay.update(info);
     });
